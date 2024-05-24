@@ -68,7 +68,7 @@ def predict(m, future) -> pd.DataFrame:
 
     return forecast
 
-def main():
+def main() -> pd.DataFrame:
     """MAIN FUNCTION
 
     Parameters
