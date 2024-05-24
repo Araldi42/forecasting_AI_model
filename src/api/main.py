@@ -7,9 +7,8 @@ from datetime import datetime
 from dotenv import load_dotenv
 from fastapi import FastAPI, Request, HTTPException
 from fastapi.encoders import jsonable_encoder
-sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..'))
-from prophet.model import main as forecast
-from utils.Mongo import Mongo
+sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'prophet'))
+from model import main as forecast
 
 CURRENT_DIR = os.path.dirname(os.path.realpath(__file__))
 logging.basicConfig(filename=f"{CURRENT_DIR}/log/{datetime.now()}_error.log",level=logging.ERROR)
