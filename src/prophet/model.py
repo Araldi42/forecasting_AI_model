@@ -41,6 +41,22 @@ def clean_data(df : pd.DataFrame) -> pd.DataFrame:
 
     return df
 
+def get_last_date(df : pd.DataFrame) -> str:
+    """GET LAST DATE
+
+    Parameters
+    ----------
+    df : pd.DataFrame
+        Data
+    Returns
+    -------
+    str
+        Last date
+    """
+    last_date = df['ds'].max()
+
+    return last_date
+
 def train_model(df : pd.DataFrame, period : int = 2016) -> tuple:
     """TRAIN MODEL
 
@@ -94,8 +110,10 @@ def main() -> pd.DataFrame:
     """
     df = get_data()
     df = clean_data(df)
+    last_date = get_last_date(df)
     m, future = train_model(df)
     forecast = predict(m, future)
+    forecast = forecast[forecast['ds'] > last_date]
     return forecast
 
 if __name__ == "__main__":
