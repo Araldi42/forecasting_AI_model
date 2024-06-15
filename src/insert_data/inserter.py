@@ -38,9 +38,7 @@ def insert_data(dataframe):
     dataframe['ds'] = dataframe['ds'].apply(datetime_to_timestamp)
     data_tuple = list(dataframe.itertuples(index=False, name=None))
     connection.insert_many_data(collumns="timestamp, value", data_tuples=data_tuple)
-    test = connection.get_all_data()
-    print(test)
-
+    # TODO: Limit dataframe para pegar apenas os dados preditos pelo modelo (os que são maiores que o maior valor de timestamp da tabela flow)
 if __name__ == "__main__":
     data = train_model()
     insert_data(data)
