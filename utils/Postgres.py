@@ -1,6 +1,7 @@
 '''This module is used to connect to a postgres db and insert data into it and collect data from it'''
-from urllib.parse import urlparse
 import psycopg2 as pg
+from psycopg2 import sql
+from psycopg2.extras import execute_values
 
 class Postgres():
     '''CLASS TO HANDLE POSTGRES DB CONNECTIONS AND INSERTIONS
@@ -25,15 +26,15 @@ class Postgres():
         Cursor to interact with the postgres db
     '''
 
-    def __init__(self, url):
-        self.__url = urlparse(url)
-        self.__db = ''
+    def __init__(self, user, password, host, port, db):
+        self.__db = db
         self.__table = ''
-        self.username = ''
-        self.password = ''
-        self.host = ''
-        self.port = ''
+        self.username = user
+        self.password = password
+        self.host = host
+        self.port = port
         self.cursor = ''
+        self.connection = ''
 
     def set_db(self, db):
         '''Set the database to be used'''
@@ -45,23 +46,18 @@ class Postgres():
 
     def connect(self):
         '''Connect to the postgres db'''
-        if self.__url != '' and self.__db != '':
-            self.username = self.__url.username
-            self.password = self.__url.password
-            self.host = self.__url.hostname
-            self.port = self.__url.port
-            try:
-                connection = pg.connect(
-                    dbname=self.__db,
-                    user=self.username,
-                    password=self.password,
-                    host=self.host,
-                    port=self.port
-                )
-                self.cursor = connection.cursor()
-                return self.cursor
-            except Exception as e:
-                raise e
+        try:
+            connection = pg.connect(
+                dbname=self.__db,
+                user=self.username,
+                password=self.password,
+                host=self.host,
+                port=self.port
+            )
+            self.cursor = connection.cursor()
+            return self.cursor
+        except Exception as e:
+            raise e
 
     def get_all_data(self, columns : str = ''):
         '''Get all data from the table'''
@@ -89,3 +85,10 @@ class Postgres():
         values = ', '.join([f"'{value}'" for value in data.values()])
         query = f"INSERT INTO {self.__table} ({columns}) VALUES ({values})"
         self.cursor.execute(query)
+        self.cursor.connection.commit()
+
+    def insert_many_data(self, collumns: str, data_tuples: list):
+        '''Insert many data into the table'''
+        insert_query = sql.SQL(f"INSERT INTO {self.__table} ({collumns}) VALUES " + "%s")
+        execute_values(self.cursor, insert_query, data_tuples)
+        self.cursor.connection.commit()

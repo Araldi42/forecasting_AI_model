@@ -3,31 +3,28 @@ import sys
 import pandas as pd
 from dotenv import load_dotenv
 sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..'))
-from utils.Mongo import Mongo
+from utils.Postgres import Postgres
 
 load_dotenv()
 
-def connect_to_mongo():
-    mongo = Mongo(port=int(os.getenv("MONGO_PORT")),
-                  host=os.getenv("MONGO_HOST"))
-    mongo.connect()
-    return mongo
+def connect_to_postgres():
+    '''Connect to the postgres db'''
+    pg = Postgres(user=os.getenv("POSTGRES_USER"),
+                  password=os.getenv("POSTGRES_PASSWORD"),
+                  host=os.getenv("POSTGRES_HOST"),
+                  port=os.getenv("POSTGRES_PORT"),
+                  db=os.getenv("POSTGRES_DB"))
+    pg.set_table("flow")
+    return pg
 
-def get_data(node, period):
-    mongo = connect_to_mongo()
-    mongo.set_database(os.getenv("MONGO_DATABASE"))
-    mongo.set_collection(os.getenv("MONGO_COLLECTION"))
-    data = mongo.find_data({'info.id_node': node,
-                         'timestamp': {'$gte': period}})
-    lista = []
-    for value in data:
-        print(value)
-        list.append(value)
-    df = pd.DataFrame(lista)
-    return df
+def collect_data(debug=False):
+    '''Collect data from the postgres db'''
+    connection = connect_to_postgres()
+    connection.connect()
+    data = connection.get_all_data(columns="value, timestamp")
+    if debug:
+        print(data)
+    return data
 
 if __name__ == "__main__":
-    mongo = connect_to_mongo()
-    df = get_data("DMC012", 1672542000)
-    print(df.head())
-    #mongo.end_connection()
+    collect_data(debug=True)

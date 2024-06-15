@@ -40,8 +40,8 @@ async def predict_data(request: Request):
         predict_data = predict_data[predict_data['ds'] > "2024-05-17 11:00:00"] # TO DO: Change this to everyly last data in the dataset at the time of the request
         return jsonable_encoder(predict_data.to_dict(orient="records"))
     except Exception as e:
-        logging.error(f"Error: {e}")
-        raise HTTPException(status_code=500, detail="Internal Server Error")
+        logging.error("Error in predict data: %s", str(e))
+        raise HTTPException(status_code=500, detail="Internal Server Error") from e
     
 
 async def main():

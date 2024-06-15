@@ -4,7 +4,23 @@ from datetime import datetime, timedelta
 import pandas as pd
 import numpy as np
 from prophet import Prophet
+sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
+from collect_data.collector import collect_data
 
+def get_data() -> pd.DataFrame:
+    """GET DATA
+
+    Parameters
+    ----------
+    None
+    Returns
+    -------
+    pd.DataFrame
+        Data
+    """
+    data = collect_data()
+    df = pd.DataFrame(data, columns=['value', 'timestamp'])
+    return df
 
 def clean_data(df : pd.DataFrame) -> pd.DataFrame:
     """CLEAN DATA
@@ -18,12 +34,9 @@ def clean_data(df : pd.DataFrame) -> pd.DataFrame:
     pd.DataFrame
         Cleaned data
     """
-    df = df[['timestamp', 'data.raw_cur_flow']]
-    df.rename(columns={'data.raw_cur_flow': 'value'}, inplace=True)
     df = df[~df['value'].isna()]
     df['timestamp'] = pd.to_datetime(df['timestamp'], unit='s')
     df['timestamp'] = df['timestamp'].dt.strftime('%Y-%m-%d %H:%M:%S')
-
     df.rename(columns={'timestamp': 'ds', 'value': 'y'}, inplace=True)
 
     return df
@@ -79,9 +92,7 @@ def main() -> pd.DataFrame:
     pd.DataFrame
         Forecasted data
     """
-    current_dir = os.path.dirname(os.path.realpath(__file__))
-    data_path = f"{current_dir}/data/messages.csv"
-    df = pd.read_csv(data_path)
+    df = get_data()
     df = clean_data(df)
     m, future = train_model(df)
     forecast = predict(m, future)
