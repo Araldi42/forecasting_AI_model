@@ -31,14 +31,18 @@ def train_model():
     data_model = forecast()
     return data_model
 
-def insert_data(dataframe):
+def insert_data(dataframe, debug=False):
     '''Insert data into the postgres db'''
     connection = connect_to_postgres()
     dataframe = dataframe[['ds', 'yhat']]
     dataframe['ds'] = dataframe['ds'].apply(datetime_to_timestamp)
     data_tuple = list(dataframe.itertuples(index=False, name=None))
     connection.insert_many_data(collumns="timestamp, value", data_tuples=data_tuple)
+    if debug:
+        data_debug = connection.get_all_data(columns="timestamp, value")
+        print(data_debug)
     # TODO: Limit dataframe para pegar apenas os dados preditos pelo modelo (os que são maiores que o maior valor de timestamp da tabela flow)
+
 if __name__ == "__main__":
     data = train_model()
     insert_data(data)
