@@ -36,13 +36,17 @@ def clean_data(df : pd.DataFrame) -> pd.DataFrame:
     """
     df = df[~df['value'].isna()]
     df['timestamp'] = pd.to_datetime(df['timestamp'], unit='s')
-    df['timestamp'] = df['timestamp'].dt.strftime('%Y-%m-%d %H:%M:%S')
-    df['timestamp'] = df[(df['timestamp'] >= datetime.now() - timedelta(days=365)) & (df['timestamp'] <= datetime.now() - timedelta(days=365) + timedelta(days=30))] # 24-06-2023 -> 24-07-2023 : 24-06-2024 -> 24-07-2024
+    one_year_ago = datetime.now() - timedelta(days=365)
+    one_year_ago_plus_30 = one_year_ago + timedelta(days=60)
+
+    df = df[(df['timestamp'] >= one_year_ago) & (df['timestamp'] <= one_year_ago_plus_30)] # 24-06-2023 -> 24-07-2023 : 24-06-2024 -> 24-07-2024
     # mudar ano dos daods de 2023 para 2024
-    df['timestamp'] = df['timestamp'].apply(lambda x: x.replace('2023', '2024'))
+    df['timestamp'] = df['timestamp'].apply(lambda x: x.replace(year=2024) if x.year == 2023 else x)
     # mudar os dados para ficarem menores que a data atual
-    df['timestamp'] = df['timestamp'].apply(lambda x: x - timedelta(days=datetime.now().day) + timedelta(days=1))
-    print(df)
+    df['timestamp'] = df['timestamp'] - timedelta(days=datetime.now().day) - timedelta(days=datetime.now().month) - timedelta(days=datetime.now().month) - timedelta(days=datetime.now().day + 1)
+
+    df['timestamp'] = df['timestamp'].dt.strftime('%Y-%m-%d %H:%M:%S')
+    df.reset_index(drop=True, inplace=True)
     df.rename(columns={'timestamp': 'ds', 'value': 'y'}, inplace=True)
 
     return df
