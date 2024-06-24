@@ -31,10 +31,16 @@ def train_model():
     data_model = forecast()
     return data_model
 
+def delete_data():
+    '''Delete all data from the postgres db'''
+    connection = connect_to_postgres()
+    connection.delete_all_data()
+    print('data removed')
+
 def insert_data(dataframe, debug=False):
     '''Insert data into the postgres db'''
     connection = connect_to_postgres()
-    dataframe = dataframe[['ds', 'yhat']]
+    dataframe = dataframe[['ds', 'yhat_lower']]
     dataframe['ds'] = dataframe['ds'].apply(datetime_to_timestamp)
     data_tuple = list(dataframe.itertuples(index=False, name=None))
     connection.insert_many_data(collumns="timestamp, value", data_tuples=data_tuple)

@@ -58,6 +58,12 @@ class Postgres():
             return self.cursor
         except Exception as e:
             raise e
+        
+    def delete_all_data(self):
+        '''Delete all data from the table'''
+        query = f"DELETE FROM {self.__table}"
+        self.cursor.execute(query)
+        self.cursor.connection.commit()
 
     def get_all_data(self, columns : str = ''):
         '''Get all data from the table'''
