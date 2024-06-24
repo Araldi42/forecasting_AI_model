@@ -37,9 +37,9 @@ def clean_data(df : pd.DataFrame) -> pd.DataFrame:
     df = df[~df['value'].isna()]
     df['timestamp'] = pd.to_datetime(df['timestamp'], unit='s')
     one_year_ago = datetime.now() - timedelta(days=365)
-    one_year_ago_plus_30 = one_year_ago + timedelta(days=60)
+    one_year_ago_plus_60 = one_year_ago + timedelta(days=60)
 
-    df = df[(df['timestamp'] >= one_year_ago) & (df['timestamp'] <= one_year_ago_plus_30)] # 24-06-2023 -> 24-07-2023 : 24-06-2024 -> 24-07-2024
+    df = df[(df['timestamp'] >= one_year_ago) & (df['timestamp'] <= one_year_ago_plus_60)] # 24-06-2023 -> 24-07-2023 : 24-06-2024 -> 24-07-2024
     # mudar ano dos daods de 2023 para 2024
     df['timestamp'] = df['timestamp'].apply(lambda x: x.replace(year=2024) if x.year == 2023 else x)
     # mudar os dados para ficarem menores que a data atual
