@@ -39,12 +39,7 @@ def clean_data(df : pd.DataFrame) -> pd.DataFrame:
     one_year_ago = datetime.now() - timedelta(days=365)
     one_year_ago_plus_60 = one_year_ago + timedelta(days=60)
 
-    # df = df[(df['timestamp'] >= one_year_ago) & (df['timestamp'] <= one_year_ago_plus_60)] # 24-06-2023 -> 24-07-2023 : 24-06-2024 -> 24-07-2024
-    # mudar ano dos daods de 2023 para 2024
-    # df['timestamp'] = df['timestamp'].apply(lambda x: x.replace(year=2024) if x.year == 2023 else x)
-    # # mudar os dados para ficarem menores que a data atual
-    # df['timestamp'] = df['timestamp'] - timedelta(days=datetime.now().day) - timedelta(days=datetime.now().month) - timedelta(days=datetime.now().month) - timedelta(days=datetime.now().day + 1)
-
+    df = df[(df['timestamp'] >= datetime.now() - timedelta(days=14)) & (df['timestamp'] <= datetime.now())] # 24-06-2023 -> 24-07-2023 : 24-06-2024 -> 24-07-2024
     df['timestamp'] = df['timestamp'].dt.strftime('%Y-%m-%d %H:%M:%S')
     print(df)
     df.reset_index(drop=True, inplace=True)
@@ -82,7 +77,7 @@ def train_model(df : pd.DataFrame, period : int = 2016) -> tuple:
     tuple
         Model and future data
     """
-    m = Prophet(changepoint_prior_scale=0.01).fit(df)
+    m = Prophet().fit(df)
     future = m.make_future_dataframe(periods=period, freq='5min')
 
     return m, future
